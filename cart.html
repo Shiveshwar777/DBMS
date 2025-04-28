@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cart</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .card {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 10px;
+      max-width: 700px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .summary {
+      font-weight: bold;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <header><h1>Cart Summary</h1></header>
+  <nav>
+    <a href="index.html">Home</a> |
+    <a href="menu.html">Back to Menu</a>
+  </nav>
+
+  <section class="section">
+    <div class="card" id="cartSummary">Loading cart...</div>
+
+    <div class="card form-section">
+      <h3>Choose Order Type</h3>
+      <label><input type="radio" name="orderType" value="delivery" checked onchange="toggleOrderDetails()"> Delivery</label>
+      <label><input type="radio" name="orderType" value="dinein" onchange="toggleOrderDetails()"> Dine-in</label>
+
+      <div id="deliveryForm">
+        <label for="address">Delivery Address:</label>
+        <textarea id="address" rows="3" placeholder="Enter full address here..."></textarea>
+      </div>
+
+      <div id="tableForm" style="display:none;">
+        <label for="tableNumber">Table Number:</label>
+        <input type="number" id="tableNumber" placeholder="Enter your table number">
+      </div>
+
+      <button onclick="finalizeOrder()">Proceed to Payment</button>
+      <button onclick="viewDeliveryStatus()">View Delivery Status</button>
+      <button onclick="clearCart()" style="background-color: #999; margin-top: 10px;">Clear Cart</button>
+    </div>
+  </section>
+
+  <footer>&copy; 2025 Quick & Smart Restaurant</footer>
+
+  <script>
+    function toggleOrderDetails() {
+      const orderType = document.querySelector('input[name="orderType"]:checked').value;
+      document.getElementById("deliveryForm").style.display = orderType === "delivery" ? "block" : "none";
+      document.getElementById("tableForm").style.display = orderType === "dinein" ? "block" : "none";
+    }
+
+    function loadCart() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cartDiv = document.getElementById("cartSummary");
+
+      if (cart.length === 0) {
+        cartDiv.innerHTML = "<p>Your cart is empty.</p>";
+        return;
+      }
+
+      let html = "<table><tr><th>Item</th><th>Quantity</th><th>Price</th><th>Total</th></tr>";
+      let subtotal = 0;
+
+      cart.forEach(item => {
+        const itemTotal = item.qty * item.price;
+        subtotal += itemTotal;
+        html += `<tr>
+                  <td>${item.name}</td>
+                  <td>${item.qty}</td>
+                  <td>₹${item.price}</td>
+                  <td>₹${itemTotal}</td>
+                </tr>`;
+      });
+
+      const tax = Math.round(subtotal * 0.10);
+      const total = subtotal + tax;
+
+      html += `<tr><td colspan="3" class="summary">Subtotal</td><td>₹${subtotal}</td></tr>`;
+      html += `<tr><td colspan="3" class="summary">Tax (10%)</td><td>₹${tax}</td></tr>`;
+      html += `<tr><td colspan="3" class="summary">Total</td><td>₹${total}</td></tr>`;
+      html += "</table>";
+
+      cartDiv.innerHTML = html;
+    }
+
+    function finalizeOrder() {
+      const orderType = document.querySelector('input[name="orderType"]:checked').value;
+
+      if (orderType === "delivery") {
+        const address = document.getElementById("address").value.trim();
+        if (!address) {
+          alert("Please enter your delivery address.");
+          return;
+        }
+        localStorage.setItem("orderType", "delivery");
+        localStorage.setItem("deliveryAddress", address);
+      } else {
+        const table = document.getElementById("tableNumber").value.trim();
+        if (!table) {
+          alert("Please enter your table number.");
+          return;
+        }
+        localStorage.setItem("orderType", "dinein");
+        localStorage.setItem("tableNumber", table);
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        localStorage.setItem(`dinein_cart_table_${table}`, JSON.stringify(cart));
+      }
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let subtotal = 0;
+      cart.forEach(item => subtotal += item.qty * item.price);
+      const tax = Math.round(subtotal * 0.10);
+      const total = subtotal + tax;
+
+      localStorage.setItem("paymentSubtotal", subtotal);
+      localStorage.setItem("paymentTax", tax);
+      localStorage.setItem("paymentTotal", total);
+
+      alert("Order placed!\nProceeding to payment.");
+  localStorage.removeItem("cart"); 
+  window.location.href = "payments.html";
+    }
+
+    function clearCart() {
+      localStorage.removeItem("cart");
+      loadCart();
+    }
+
+    function viewDeliveryStatus() {
+      alert("Delivery status tracking feature coming soon!");
+    }
+    window.onload = loadCart;
+  </script>
+</body>
+</html>

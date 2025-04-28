@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Delivery</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .card {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      border-radius: 10px;
+      background-color: #fdfdfd;
+    }
+    .card h3 {
+      margin-top: 0;
+    }
+    .form-container {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <header><h1>Delivery Status</h1></header>
+  <nav>
+    <a href="index.html">Home</a> |
+    <a href="cart.html">View Cart</a>
+  </nav>
+  <section class="section">
+    <div class="form-container">
+      <label for="deliveryId">Enter Delivery ID:</label>
+      <input type="text" id="deliveryId" placeholder="Enter your Delivery ID">
+      <button onclick="loadDeliveryDetails()">Load Delivery Status</button>
+    </div>
+    <div class="card" id="deliveryDetails">
+      Loading order details...
+    </div>
+  </section>
+  <footer>&copy; 2025 Quick & Smart Restaurant</footer>
+
+  <script>
+    function loadDeliveryDetails() {
+      const deliveryId = document.getElementById("deliveryId").value.trim();
+      
+      if (!deliveryId) {
+        alert("Please enter a valid Delivery ID.");
+        return;
+      }
+
+      // Simulating the delivery data from cart and localStorage
+      const orderType = localStorage.getItem("orderType");
+      const deliveryData = {
+        deliveryId: deliveryId,  // Set entered Delivery ID
+        orderNo: "101",          // Simulated Order number
+        deliveryStatus: "Out for Delivery", // Current status
+        estimatedTime: "30 mins", // Estimated delivery time
+        address: localStorage.getItem("deliveryAddress"), // Delivery address from localStorage
+        table: localStorage.getItem("tableNumber"), // Table number from localStorage (if dine-in)
+      };
+
+      const deliveryDiv = document.getElementById("deliveryDetails");
+
+      // Check the order type and display the respective information
+      if (orderType === "delivery") {
+        // Display delivery information
+        deliveryDiv.innerHTML = `
+          <h3>Delivery #${deliveryData.deliveryId} (Order #${deliveryData.orderNo})</h3>
+          <p>Status: <strong>${deliveryData.deliveryStatus}</strong></p>
+          <p>ETA: <strong>${deliveryData.estimatedTime}</strong></p>
+          <p>Delivery Address:</p>
+          <div style="margin-left: 20px;">${deliveryData.address}</div>
+        `;
+      } else if (orderType === "dinein") {
+        // Display dine-in information
+        deliveryDiv.innerHTML = `
+          <h3>Order #${deliveryData.orderNo}</h3>
+          <p>Status: <strong>Being Prepared</strong></p>
+          <p>ETA: <strong>15 mins</strong></p>
+          <p>Table Number: <strong>${deliveryData.table}</strong></p>
+        `;
+      } else {
+        // If no valid order type found
+        deliveryDiv.innerHTML = "<p>No order found.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
